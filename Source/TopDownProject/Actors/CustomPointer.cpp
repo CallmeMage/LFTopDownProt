@@ -2,19 +2,23 @@
 
 
 #include "CustomPointer.h"
+#include "Components/TextRenderComponent.h"
 
 // Sets default values
 ACustomPointer::ACustomPointer()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
+	TextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TextComponent"));
+	RootComponent =	TextComponent;
 }
 
 // Called when the game starts or when spawned
 void ACustomPointer::BeginPlay()
 {
 	Super::BeginPlay();
+	TextComponent->SetText(FText::FromString("Drink Me!"));
 	
 }
 

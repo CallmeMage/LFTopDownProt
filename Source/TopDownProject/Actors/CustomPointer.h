@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "CustomPointer.generated.h"
 
+class UTextRenderComponent;
+
 UCLASS()
 class TOPDOWNPROJECT_API ACustomPointer : public AActor
 {
@@ -14,6 +16,7 @@ class TOPDOWNPROJECT_API ACustomPointer : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ACustomPointer();
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,5 +25,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UTextRenderComponent> TextComponent;
 };
