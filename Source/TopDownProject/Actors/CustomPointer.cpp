@@ -19,6 +19,7 @@ void ACustomPointer::BeginPlay()
 {
 	Super::BeginPlay();
 	TextComponent->SetText(FText::FromString("Drink Me!"));
+	TextComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
 	
 }
 
