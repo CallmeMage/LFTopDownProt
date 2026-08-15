@@ -3,8 +3,6 @@
 
 #include "VitalAttributeSet.h"
 
-#include "WorldPartition/ContentBundle/ContentBundleLog.h"
-
 void UVitalAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
