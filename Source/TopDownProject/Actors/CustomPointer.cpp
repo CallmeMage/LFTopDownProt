@@ -18,7 +18,7 @@ ACustomPointer::ACustomPointer()
 void ACustomPointer::BeginPlay()
 {
 	Super::BeginPlay();
-	TextComponent->SetText(FText::FromString("Drink Me!"));
+	TextComponent->SetText(FText::FromString("Immunity!"));
 	TextComponent->AddLocalRotation(FRotator(0.0f, 180.0f, 0.0f));
 	
 }
