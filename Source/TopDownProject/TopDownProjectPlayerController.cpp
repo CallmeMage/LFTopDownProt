@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TopDownProjectPlayerController.h"
+
+#include "AbilitySystemComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NiagaraSystem.h"
@@ -11,6 +13,7 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerState.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -65,41 +68,71 @@ void ATopDownProjectPlayerController::OnInputStarted()
 	StopMovement();
 }
 
+bool ATopDownProjectPlayerController::CanMove() const
+{
+	if (const APlayerState* PS = PlayerState)
+	{
+		if (const UAbilitySystemComponent* ASC =
+			PS->FindComponentByClass<UAbilitySystemComponent>())
+		{
+			const FGameplayTag CastingTag =
+				FGameplayTag::RequestGameplayTag(FName("State.Casting"));
+
+			return !ASC->HasMatchingGameplayTag(CastingTag);
+		}
+	}
+
+	return true;
+}
+
 // Triggered every frame when the input is held down
 void ATopDownProjectPlayerController::OnSetDestinationTriggered()
 {
-	// We flag that the input is being pressed
-	FollowTime += GetWorld()->GetDeltaSeconds();
+	if (!CanMove())
+	{
+		StopMovement();
+		return;
+	}
+	if (CanMove())
+	{
+		// We flag that the input is being pressed
+		FollowTime += GetWorld()->GetDeltaSeconds();
 	
-	// We look for the location in the world where the player has pressed the input
-	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
-	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
+		// We look for the location in the world where the player has pressed the input
+		FHitResult Hit;
+		bool bHitSuccessful = false;
+		if (bIsTouch)
+		{
+			bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
+		}
+		else
+		{
+			bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+		}
 
-	// If we hit a surface, cache the location
-	if (bHitSuccessful)
-	{
-		CachedDestination = Hit.Location;
-	}
+		// If we hit a surface, cache the location
+		if (bHitSuccessful)
+		{
+			CachedDestination = Hit.Location;
+		}
 	
-	// Move towards mouse pointer or touch
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
-	{
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+		// Move towards mouse pointer or touch
+		APawn* ControlledPawn = GetPawn();
+		if (ControlledPawn != nullptr)
+		{
+			FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+			ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+		}
 	}
 }
-
 void ATopDownProjectPlayerController::OnSetDestinationReleased()
 {
+	if (!CanMove())
+	{
+		StopMovement();
+		FollowTime = 0.f;
+		return;
+	}
 	// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
 	{

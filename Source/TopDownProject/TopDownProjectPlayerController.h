@@ -53,6 +53,7 @@ protected:
 
 	/** Input handlers for SetDestination action. */
 	void OnInputStarted();
+	bool CanMove() const;
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 	void OnTouchTriggered();
